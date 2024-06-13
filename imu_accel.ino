@@ -29,21 +29,18 @@ void initIMU() {
   Wire.write(0x00); // Set to zero (wakes up the MPU-9250).
   Wire.endTransmission();
 
-  // Set accelerometer configuration.
   Wire.beginTransmission(imu_addr);
   Wire.write(0x1c); // Accelerometer configuration register | line 128 i2c_motion.py
   Wire.write(0x00); // Set accelerometer range to ±2g | line 105 i2c_motion.py
   Wire.endTransmission();
 
-  // Set gyro configuration.
   Wire.beginTransmission(imu_addr);
   Wire.write(0x1b); // Gyro configuration register | line 122 in i2c_motion.py
   Wire.write(0x00); // Set gyro range to ±250 degrees/sec
   Wire.endTransmission();
 }
 
-void readAccelerometer(int &x, int &y, int &z) {
-  // Step 1: Write the register address where accelerometer data starts.
+void readAccel(int &x, int &y, int &z) {
   Wire.beginTransmission(imu_addr);
   Wire.write(0x3b); // Starting register for accelerometer data | line 220 in i2c_motion.py
   Wire.endTransmission(false); // Send a restart signal.
@@ -58,7 +55,7 @@ void readAccelerometer(int &x, int &y, int &z) {
   }
 }
 
-// Function to calculate theta and phi of FEM in soherical coordinate system in degrees.
+// Function to calculate theta and phi of FEM in spherical coordinate system in degrees.
 void calculatePose(int x, int y, int z, float &theta, float &phi) {
   float ax = x / 16384.0; // Assuming the accelerometer is set to ±2g, this gives us a range between ±19.6 m/s^2
                           // where ±1g translates to 16384 LSB/g (least significant bits per g). 
@@ -75,7 +72,6 @@ void setup() {
   // Initializing i2c communications as Master.
   Wire.begin();
 
-  // Initializing IMU on the FEM.
   initIMU();
 
   Serial.println("Type 's' to stop the loop.");
@@ -98,7 +94,7 @@ void loop() {
   }
 
   int x, y, z;
-  readAccelerometer(x, y, z);
+  readAccel(x, y, z);
 
   float theta, phi;
   calculatePose(x, y, z, theta, phi);
