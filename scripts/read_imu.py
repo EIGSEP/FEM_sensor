@@ -1,3 +1,4 @@
+import time
 from fem_sensor.accelerometer import IMU
 
 imu = IMU()
@@ -11,4 +12,3 @@ try:
         time.sleep(2)  # 2 second delay.
 except KeyboardInterrupt:
     print("Stopped reading position. Self-destruct in 5...4...3...2...1")
-

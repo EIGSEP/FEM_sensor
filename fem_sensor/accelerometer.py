@@ -1,5 +1,4 @@
 import smbus
-import time
 import math
 
 IMU_ADDR = 0x69
@@ -81,5 +80,3 @@ class IMU:
         phi = math.atan2(-ax, math.sqrt(ay * ay + az * az)) * 180.0 / math.pi
 
         return theta, phi
-
-
