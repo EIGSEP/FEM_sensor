@@ -1,7 +1,10 @@
-import smbus
 import math
+import redis
+import smbus
 
 IMU_ADDR = 0x69
+REDIS_HOST = "localhost"
+REDIS_PORT = 6379
 
 
 class IMU:
@@ -9,6 +12,7 @@ class IMU:
         self.bus = smbus.SMBus(bus_num)
         self.imu_addr = imu_addr
         self.initialize_imu()
+        self.redis = redis.Redis(host=REDIS_HOST, port=REDIS_PORT)
 
     def initialize_imu(self):
         """
@@ -80,3 +84,10 @@ class IMU:
         phi = math.atan2(-ax, math.sqrt(ay * ay + az * az)) * 180.0 / math.pi
 
         return theta, phi
+
+    def update_redis(self, theta, phi):
+        """
+        Updates the Redis database with the accelerometer data.
+        """
+        self.redis.set("theta", theta)
+        self.redis.set("phi", phi)
