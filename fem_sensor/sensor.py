@@ -172,9 +172,15 @@ class Fem:
         new_val |= self.SWMODE.get(mode, val & 0b00000111)
         self._switch_write(new_val)
         if verify:
-            assert new_val == self._switch_read()  # XXX
+            assert new_val == self._switch_read()
 
-    def _switch_read(self, length=1):
+    def _switch_read(self):
+        return self.bus.read_byte(self.sw_addr)
+
+    def _switch_write(self, data):
+        self.bus.write_byte(self.sw_addr data)
+
+    def _switch_read_old(self, length=1):
         """
         I2C reads arbitary number of bytes from a slave device, It carries out
         the following steps:
@@ -215,7 +221,7 @@ class Fem:
             return data[0]
         return data
 
-    def _switch_write(self, new_val):
+    def _switch_write_old(self, new_val):
         """
         I2C writes arbitary number of bytes to a slave device, It carries out
         the following steps:
