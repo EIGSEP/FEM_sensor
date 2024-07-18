@@ -178,7 +178,7 @@ class Fem:
         return self.bus.read_byte(self.sw_addr)
 
     def _switch_write(self, data):
-        self.bus.write_byte(self.sw_addr data)
+        self.bus.write_byte(self.sw_addr, data)
 
     def _switch_read_old(self, length=1):
         """
