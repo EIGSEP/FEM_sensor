@@ -174,11 +174,11 @@ class Fem:
         if verify:
             assert new_val == self._switch_read()
 
-    def _switch_read(self):
-        return self.bus.read_byte(self.sw_addr)
+    def _switch_read(self, length=1):
+        return self.bus.read_byte(self.SW_ADDR)
 
     def _switch_write(self, data):
-        self.bus.write_byte(self.sw_addr, data)
+        self.bus.write_byte(self.SW_ADDR, data)
 
     def _switch_read_old(self, length=1):
         """
