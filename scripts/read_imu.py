@@ -1,6 +1,6 @@
 import argparse
 import time
-from fem_sensor.accelerometer import IMU
+from fem_sensor import Fem
 
 parser = argparse.ArgumentParser(
     description="Read IMU data.",
@@ -15,16 +15,16 @@ parser.add_argument(
 )
 args = parser.parse_args()
 
-imu = IMU()
+fem = Fem()
 print("Press Ctrl+C to stop reading.")
 try:
     while True:
-        x, y, z = imu.read_accel()
+        x, y, z = fem.read_accel()
         if x is not None:
-            theta, phi = imu.calc_position(x, y, z)
+            theta, phi = fem.calc_position(x, y, z)
             print(f"x:{x} y:{y} z:{z} Theta: {theta:.2f} Phi: {phi:.2f}")
             if args.update_redis:
-                imu.update_redis(theta, phi)
+                fem.update_redis(theta, phi)
         time.sleep(2)  # 2 second delay.
 except KeyboardInterrupt:
     print("Stopped reading position. Self-destruct in 5...4...3...2...1")
