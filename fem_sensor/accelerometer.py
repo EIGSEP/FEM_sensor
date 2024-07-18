@@ -1,6 +1,5 @@
 import smbus
 import math
-import time
 
 IMU_ADDR = 0x69
 
