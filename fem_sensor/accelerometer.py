@@ -1,5 +1,6 @@
 import smbus
 import math
+import time
 
 IMU_ADDR = 0x69
 
@@ -22,13 +23,10 @@ class IMU:
 
         note: check motion.py or blocks.py
         """
-        try:
-            self.bus.write_byte_data(self.imu_addr, 0x6B, 0x00)
-            self.bus.write_byte_data(self.imu_addr, 0x1C, 0x00)
-            self.bus.write_byte_data(self.imu_addr, 0x1B, 0x00)
-            print("Initialization successful.")
-        except Exception as e:
-            print(f"Error initializing {e}")
+        self.bus.write_byte_data(self.imu_addr, 0x6B, 0x00)
+        self.bus.write_byte_data(self.imu_addr, 0x1C, 0x00)
+        self.bus.write_byte_data(self.imu_addr, 0x1B, 0x00)
+        print("Initialization successful.")
 
     def read_accel(self):
         """
@@ -39,20 +37,16 @@ class IMU:
         tuple of int
             x, y, z
         """
-        try:
-            data = self.bus.read.i2c_block_data(self.imu_addr, 0x3B, 6)
-            x = data[0] << 8 | data[1]
-            y = data[2] << 8 | data[3]
-            z = data[4] << 8 | data[5]
+        data = self.bus.read_i2c_block_data(self.imu_addr, 0x3B, 6)
+        x = data[0] << 8 | data[1]
+        y = data[2] << 8 | data[3]
+        z = data[4] << 8 | data[5]
 
-            # converting to signed values.
-            x = x - 65536 if x > 32767 else x
-            y = y - 65536 if y > 32767 else y
-            z = z - 65536 if z > 32767 else z
-            return x, y, z
-        except Exception as e:
-            print(f"Error reading accelerometer: {e}")
-            return None, None, None
+        # converting to signed values.
+        x = x - 65536 if x > 32767 else x
+        y = y - 65536 if y > 32767 else y
+        z = z - 65536 if z > 32767 else z
+        return x, y, z
 
     def calc_position(self, x, y, z):
         """
