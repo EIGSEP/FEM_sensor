@@ -26,6 +26,10 @@ class Fem:
     # i2c command
     CMD_START = 1 << 7
     CMD_STOP = 1 << 6
+    CMD_READ = 1 << 5
+    CMD_WRITE = 1 << 4
+    CMD_NACK = 1 << 3  # not ack, output 1 on sda means let vdd drive sda HI
+    CMD_IACK = 1 << 0  # interrupt acknowledge, not supported
     # switch modes
     SWMODE = {"load": 0b000, "antenna": 0b110, "noise": 0b001}
 
