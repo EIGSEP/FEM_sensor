@@ -33,13 +33,13 @@ class Fem:
     # switch modes
     SWMODE = {"load": 0b000, "antenna": 0b110, "noise": 0b001}
 
-    def __init__(self, bus_num=1):
+    def __init__(self, bus_num=1, redis_host=REDIS_HOST, redis_port=REDIS_PORT):
         self.bus = smbus.SMBus(bus_num)
         self.initialize_imu()
         # switch
         self.SWMODE_REV = {v: k for k, v in self.SWMODE.items()}
         # redis
-        self.redis = redis.Redis(host=REDIS_HOST, port=REDIS_PORT)
+        self.redis = redis.Redis(host=redis_host, port=redis_port)
 
     def initialize_imu(self):
         """
@@ -109,7 +109,7 @@ class Fem:
         z = z - 65536 if z > 32767 else z
         return x, y, z
 
-    def calc_position(x, y, z):  # XXX theta/phi mixed up
+    def calc_position(self, x, y, z):  # XXX theta/phi mixed up
         """
         Calculates the roll (theta) and pitch (phi) angles based on
         the accelerometer data.
