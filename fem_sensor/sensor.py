@@ -146,7 +146,7 @@ class Fem:
         switch(north=False)     # Switch off north pole
         """
         try:
-            val = self.bus.read(self.SW_ADDR, 1)
+            val = self._switch_read(length=1)
         except Exception:
             raise RuntimeError("I2C RF switch read failure")
         cur_e = bool(val & 0b00001000)
@@ -168,7 +168,48 @@ class Fem:
         new_val |= self.SWMODE.get(mode, val & 0b00000111)
         self._switch_write(new_val)
         if verify:
-            assert new_val == self._sw_read()  # XXX
+            assert new_val == self._switch_read()  # XXX
+
+    def _switch_read(self, length=1):
+        """
+        I2C reads arbitary number of bytes from a slave device, It carries out
+        the following steps:
+        1. Send start
+        2. Send address and R/W bit low (expecting an ack from the slave)
+        3. Receive one or more bytes (expecting an ack after sending each byte)
+        4. Receive the last byte
+        4. Send stop
+
+        length : number of bytes to read
+        """
+        data = []
+        self.bus.write_byte_data(
+            self.SW_ADDR,
+            self.TRANSMIT_REG,
+            (self.SW_ADDR << 1 | self.WRITE_BIT),
+        )
+        self.bus.write_byte_data(
+            self.SW_ADDR, self.COMMAND_REG, self.CMD_START | self.CMD_WRITE
+        )
+        for i in range(length - 1):
+            # the command below also gives an ACK signal from master to slave
+            # because CMD_ACK is actually 0
+            self.bus.write_byte_data(
+                self.SW_ADDR, self.COMMAND_REG, self.CMD_WRITE
+            )
+            ret = self.bus.read_byte_data(self.SW_ADDR, self.RECEIVE_REG)
+            data.append(ret)
+        # the last read ends with a NACK signal and a stop signal from master
+        # to slave
+        self.bus.write_byte_data(
+            self.SW_ADDR,
+            self.COMMAND_REG,
+            self.CMD_READ | self.CMD_NACK | self.CMD_STOP,
+        )
+        data.append(self.bus.read_byte_data(self.SW_ADDR, self.RECEIVE_REG))
+        if length == 1:
+            return data[0]
+        return data
 
     def _switch_write(self, new_val):
         """
